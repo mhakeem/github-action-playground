@@ -13,7 +13,8 @@ on: [push]
 jobs:
   run-ruby:
     runs-on: ubuntu-latest
-
+    env:
+      SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
@@ -21,7 +22,6 @@ jobs:
       with:
         ruby-version: '3.3.1'
         # bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-      env:
-        SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
+      
     - name: Run Ruby Script
       run: ruby script.rb
