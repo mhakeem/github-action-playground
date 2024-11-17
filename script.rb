@@ -11,7 +11,7 @@ end
 
 client = Slack::Web::Client.new
 
-puts client.chat_postMessage(channel: '#test-channel-1', text: 'Hello World', as_user: true)
+client.chat_postMessage(channel: '#test-channel-1', text: "Hello World. #{Time.now}", as_user: true)
 
 
 puts "The time now is #{Time.now}"
