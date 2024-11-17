@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
+      SLACK_API_TOKEN: ${{ secrets.SLACK_API_TOKEN }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
