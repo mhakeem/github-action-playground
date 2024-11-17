@@ -20,7 +20,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        # bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       
     - name: Run Ruby Script
       run: ruby script.rb
