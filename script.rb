@@ -11,9 +11,11 @@ end
 
 client = Slack::Web::Client.new
 
-client.chat_postMessage(channel: '#test-channel-1', text: "Hello World. #{Time.now}", as_user: true)
+client.chat_postMessage(
+  channel: '#test-channel-1',
+  text: "Hello World. #{Time.now(in: Time.zone_offset('MT'))}",
+  as_user: true)
 
 
 puts "The time now is #{Time.now}"
 puts "Print secret env var #{ENV.fetch('SUPER_SECRET')}"
-
