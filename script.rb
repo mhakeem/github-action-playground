@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'time'
+require 'timezone'
 require 'slack-ruby-client'
 
 SLACK_API_TOKEN = ENV.fetch('SLACK_API_TOKEN')
@@ -14,7 +15,7 @@ client = Slack::Web::Client.new
 
 client.chat_postMessage(
   channel: '#test-channel-1',
-  text: "Hello World. #{Time.now(in: Time.zone_offset('MT'))}",
+  text: "Hello World. #{Time.now(in: Timezone['America/Denver'])}",
   as_user: true)
 
 
