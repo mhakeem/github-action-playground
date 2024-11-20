@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+require 'time'
 require 'slack-ruby-client'
 
 SLACK_API_TOKEN = ENV.fetch('SLACK_API_TOKEN')
