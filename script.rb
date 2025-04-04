@@ -3,21 +3,9 @@
 require 'bundler/setup'
 require 'time'
 require 'timezone'
-require 'slack-ruby-client'
+require_relative 'lib/services/social_media_service/social_media_service_manager'
 
-SLACK_API_TOKEN = ENV.fetch('SLACK_API_TOKEN')
-
-Slack.configure do |config|
-  config.token = SLACK_API_TOKEN
-end
-
-client = Slack::Web::Client.new
-
-client.chat_postMessage(
-  channel: '#test-channel-1',
-  text: "Hello World. #{Time.now(in: Timezone['America/Denver'])}",
-  as_user: true)
-
+SocialMediaServiceManager.post_to_all("Hello World. #{Time.now(in: Timezone['America/Denver'])}")
 
 puts "The time now is #{Time.now}"
-puts "Print secret env var #{ENV.fetch('SUPER_SECRET')}"
+# puts "Print secret env var #{ENV.fetch('SUPER_SECRET')}"
