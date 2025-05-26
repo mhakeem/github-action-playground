@@ -102,11 +102,10 @@ class WebcalEvent
   attr_reader :summary, :description
 
   def initialize(event)
-    @event = event
-    @summary = @event&.summary&.strip
-    @start = TZConverter.to_us_denver @event&.dtstart
-    @end = TZConverter.to_us_denver @event&.dtend
-    @description = @event.description.split("\n").last.strip
+    @summary = event&.summary&.strip
+    @start = TZConverter.to_us_denver event&.dtstart
+    @end = TZConverter.to_us_denver event&.dtend
+    @description = event.description.split("\n").last.strip
   end
 
   def meal_time
