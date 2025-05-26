@@ -15,6 +15,15 @@ class WebcalEventFinderService
     @calendar = parse_ics(ics_data)
   end
 
+  def search_events(target_date)
+    breakfast_times = 8..9 # am
+    lunch_time = 12 # pm
+
+    morning = breakfast_times.map { search_event(target_date, _1) }.detect(&:found?) || NullWebcalEvent.new
+    noon = search_event(target_date, lunch_time)
+    [morning, noon]
+  end
+
   def search_event(target_date, start_hour)
     events_range = events_in_range(target_date, target_date)
     found_event = events_range.find do |lunch_event|

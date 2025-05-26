@@ -76,6 +76,20 @@ class WebcalEventFinderServiceTest < Minitest::Test
     assert_nil event.description
   end
 
+  def test_search_events_found
+    target_date = Date.new(2025, 5, 28)
+    breakfast, lunch = @event_finder_service.search_events target_date
+    assert breakfast.found?
+    assert lunch.found?
+  end
+
+  def test_search_events_not_found
+    target_date = Date.new(2025, 4, 16)
+    morning, noon = @event_finder_service.search_events target_date
+    refute morning.found?
+    refute noon.found?
+  end
+
   private
 
   def mock_ics_data
