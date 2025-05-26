@@ -1,0 +1,128 @@
+require 'open-uri'
+require 'net/http'
+require 'icalendar'
+require 'date'
+require 'time'
+require 'tzinfo'
+
+class WebcalEventFinderService
+  class WebcalFetchingError < StandardError; end
+
+  attr_reader :calendar
+
+  def initialize(url)
+    ics_data = download_ics(url.sub('webcal', 'http'))
+    @calendar = parse_ics(ics_data)
+  end
+
+  def search_event(target_date, start_hour)
+    events_range = events_in_range(target_date, target_date)
+    found_event = events_range.find do |lunch_event|
+      event_start = to_mtz(lunch_event.dtstart)
+
+      # Match date in Mountain Time
+      event_start.to_date == target_date && event_start.hour == start_hour
+    end
+    found_event ? WebcalEvent.new(found_event) : NullWebcalEvent.new
+  end
+
+  private
+
+  def download_ics(url)
+    uri = URI.parse(url)
+    response = Net::HTTP.get_response(uri)
+    raise WebcalFetchingError unless response.is_a?(Net::HTTPSuccess)
+
+    response.body
+  end
+
+  def parse_ics(ics_data)
+    Icalendar::Calendar.parse(ics_data).first
+  end
+
+  def to_mtz(datetime)
+    TZConverter.to_us_denver(datetime)
+  end
+
+  def events_in_range(start_time, end_time)
+    @sorted_events ||= sort_events(calendar.events)
+    start_idx = find_start_index(start_time)
+    return [] unless start_idx
+
+    collect_events_in_range(start_idx, end_time)
+  end
+
+  def sort_events(events)
+    events.sort_by { |e| e.dtstart.to_time.to_i }
+  end
+
+  def find_start_index(start_time)
+    @sorted_events.bsearch_index { |e| e.dtstart.to_time >= start_time.to_time }
+  end
+
+  def collect_events_in_range(start_idx, end_time)
+    day_in_seconds = 86_399
+    result = []
+    i = start_idx
+    while i < @sorted_events.size && @sorted_events[i].dtstart.to_time <= end_time.to_time + day_in_seconds
+      result << @sorted_events[i]
+      i += 1
+    end
+    result
+  end
+end
+
+# Time Zone Converter
+class TZConverter
+  def self.to_us_denver(datetime)
+    mountain_tz = TZInfo::Timezone.get('America/Denver')
+    mountain_tz.utc_to_local(datetime.to_time.utc)
+  end
+end
+
+# Webcal Event class
+class WebcalEvent
+  class MealTimeNotExistError < StandardError; end
+
+  MEAL_TIME = {
+    8 => 'Breakfast',
+    12 => 'Lunch'
+  }.freeze
+
+  attr_reader :summary, :description
+
+  def initialize(event)
+    @event = event
+    @summary = @event&.summary&.strip
+    @start = TZConverter.to_us_denver @event&.dtstart
+    @end = TZConverter.to_us_denver @event&.dtend
+    @description = @event.description.split("\n").last.strip
+  end
+
+  def meal_time
+    MEAL_TIME.fetch(@start.hour)
+  rescue KeyError
+    raise self.MealTimeNotExistError
+  end
+
+  def start
+    @start.strftime('%I:%M %p')
+  end
+
+  def end
+    @end.strftime('%I:%M %p')
+  end
+
+  def found?
+    true
+  end
+end
+
+# Null Webcal Event
+class NullWebcalEvent
+  attr_reader :summary, :start, :end, :description, :meal_time
+
+  def found?
+    false
+  end
+end
