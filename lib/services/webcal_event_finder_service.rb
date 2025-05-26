@@ -95,6 +95,7 @@ class WebcalEvent
 
   MEAL_TIME = {
     8 => 'Breakfast',
+    9 => 'Breakfast',
     12 => 'Lunch'
   }.freeze
 
