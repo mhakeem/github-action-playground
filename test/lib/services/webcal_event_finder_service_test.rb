@@ -11,15 +11,41 @@ class WebcalEventFinderServiceTest < Minitest::Test
     @event_finder_service = WebcalEventFinderService.new(url)
   end
 
-  def test_search_for_breakfast_event
+  def test_search_for_breakfast_event_8am_mdt
     target_date = Date.new(2025, 5, 28)
-    breakfast = 8 # am
-    event = @event_finder_service.search_event(target_date, breakfast)
+    breakfast_range = 8..9 # am
+    event = breakfast_range.map { @event_finder_service.search_event(target_date, _1) }.detect(&:found?)
 
     assert event.found?
     assert_equal 'Breakfast', event.meal_time
     assert_equal 'Rollin in Daisies', event.summary
     assert_equal '08:00 AM', event.start
+    assert_equal '12:00 PM', event.end
+    assert_equal 'Handmade Gluten Free Cinnamon rolls', event.description
+  end
+
+  def test_search_for_breakfast_event_9am_mdt
+    target_date = Date.new(2024, 10, 23)
+    breakfast_range = 8..9 # am
+    event = breakfast_range.map { @event_finder_service.search_event(target_date, _1) }.detect(&:found?)
+
+    assert event.found?
+    assert_equal 'Breakfast', event.meal_time
+    assert_equal 'Rollin in Daisies', event.summary
+    assert_equal '09:00 AM', event.start
+    assert_equal '12:00 PM', event.end
+    assert_equal 'Handmade Gluten Free Cinnamon rolls', event.description
+  end
+
+  def test_search_for_breakfast_9am_mst
+    target_date = Date.new(2024, 11, 13)
+    breakfast_range = 8..9 # am
+    event = breakfast_range.map { @event_finder_service.search_event(target_date, _1) }.detect(&:found?)
+
+    assert event.found?
+    assert_equal 'Breakfast', event.meal_time
+    assert_equal 'Rollin in Daisies', event.summary
+    assert_equal '09:00 AM', event.start
     assert_equal '12:00 PM', event.end
     assert_equal 'Handmade Gluten Free Cinnamon rolls', event.description
   end
